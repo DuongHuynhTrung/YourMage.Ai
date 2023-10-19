@@ -5,6 +5,7 @@ import {
   BadRequestException,
   Injectable,
   InternalServerErrorException,
+  NotFoundException,
 } from '@nestjs/common';
 import { MailerService } from '@nestjs-modules/mailer';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -25,24 +26,28 @@ export class EmailService {
   ) {}
 
   async sendOtpWhenRegister(registerOtpDto: RegisterOtpDto) {
+    let userEmailAvailable = null;
     try {
-      const userEmailAvailable = await this.userRepository.findOneBy({
+      userEmailAvailable = await this.userRepository.findOneBy({
         email: registerOtpDto.email,
       });
-      if (!userEmailAvailable) {
-        throw new BadRequestException(
-          `User ${registerOtpDto.email} does not exist`,
-        );
-      }
-      if (userEmailAvailable.status) {
-        throw new BadRequestException(
-          `User with email ${registerOtpDto.email} is already available`,
-        );
-      }
+    } catch (err) {
+      throw new InternalServerErrorException(err.message);
+    }
+    if (!userEmailAvailable) {
+      throw new NotFoundException(
+        `User ${registerOtpDto.email} does not exist`,
+      );
+    }
+    if (userEmailAvailable.status) {
+      throw new BadRequestException(
+        `User with email ${registerOtpDto.email} is already available`,
+      );
+    }
 
-      const otp = Math.floor(100000 + Math.random() * 900000);
-      const otpExpired = new Date();
-
+    const otp = Math.floor(100000 + Math.random() * 900000);
+    const otpExpired = new Date();
+    try {
       await this.mailerService.sendMail({
         to: registerOtpDto.email,
         subject: 'Verify OTP when registering',
@@ -109,31 +114,35 @@ export class EmailService {
                 </table>
               </body>`,
       });
-      return { otpStored: otp, otpExpired };
     } catch (error) {
       throw new InternalServerErrorException(error.message);
     }
+    return { otpStored: otp, otpExpired };
   }
 
   async forgotPassword(registerOtpDto: RegisterOtpDto) {
+    let userEmailAvailable = null;
     try {
-      const userEmailAvailable = await this.userRepository.findOneBy({
+      userEmailAvailable = await this.userRepository.findOneBy({
         email: registerOtpDto.email,
       });
-      if (!userEmailAvailable) {
-        throw new BadRequestException(
-          `User ${registerOtpDto.email} does not exist`,
-        );
-      }
-      if (!userEmailAvailable.status) {
-        throw new BadRequestException(
-          `User with email ${registerOtpDto.email} status is false`,
-        );
-      }
+    } catch (err) {
+      throw new InternalServerErrorException(err.message);
+    }
+    if (!userEmailAvailable) {
+      throw new NotFoundException(
+        `User ${registerOtpDto.email} does not exist`,
+      );
+    }
+    if (!userEmailAvailable.status) {
+      throw new BadRequestException(
+        `User with email ${registerOtpDto.email} status is false`,
+      );
+    }
 
-      const otp = Math.floor(100000 + Math.random() * 900000);
-      const otpExpired = new Date();
-
+    const otp = Math.floor(100000 + Math.random() * 900000);
+    const otpExpired = new Date();
+    try {
       await this.mailerService.sendMail({
         to: registerOtpDto.email,
         subject: 'Reset Password OTP',
@@ -200,51 +209,57 @@ export class EmailService {
         </table>
       </body>`,
       });
-      return { otpStored: otp, otpExpired };
     } catch (error) {
       throw new InternalServerErrorException(error.message);
     }
+    return { otpStored: otp, otpExpired };
   }
 
   async verifyOtp(
     verifyOtpDto: VerifyOtpDto,
   ): Promise<{ accessToken: string }> {
+    const { otp, otpExpired, otpStored, email } = verifyOtpDto;
+    if (otpStored !== otp) {
+      throw new BadRequestException('Wrong OTP! Please try again');
+    }
+    const currentTime = moment(new Date());
+    const otpExpires = moment(otpExpired);
+    const isExpired = currentTime.diff(otpExpires, 'minutes');
+    if (isExpired > 10) {
+      throw new BadRequestException('OTP is expired! Please try again');
+    }
+    let user = null;
     try {
-      const { otp, otpExpired, otpStored, email } = verifyOtpDto;
-      if (otpStored !== otp) {
-        throw new BadRequestException('Wrong OTP! Please try again');
-      }
-      const currentTime = moment(new Date());
-      const otpExpires = moment(otpExpired);
-      const isExpired = currentTime.diff(otpExpires, 'minutes');
-      if (isExpired > 10) {
-        throw new BadRequestException('OTP is expired! Please try again');
-      }
-      const user = await this.userRepository.findOneBy({ email });
-      if (!user) {
-        throw new BadRequestException('User not found! Please try again');
-      }
-      user.status = true;
-      const updateUserStatus = await this.userRepository.save(user);
+      user = await this.userRepository.findOneBy({ email });
+    } catch (error) {
+      throw new InternalServerErrorException(error.message);
+    }
+    if (!user) {
+      throw new BadRequestException('User not found! Please try again');
+    }
+    user.status = true;
+    let updateUserStatus = null;
+    try {
+      updateUserStatus = await this.userRepository.save(user);
       if (!updateUserStatus) {
         throw new InternalServerErrorException(
           'Something went wrong updating the status of the user',
         );
       }
-      const payload: PayloadJwtDto = {
-        userName: updateUserStatus.userName,
-        email: updateUserStatus.email,
-        level: updateUserStatus.level,
-        interests: updateUserStatus.interests,
-        isOlder18: updateUserStatus.isOlder18,
-        tokens: updateUserStatus.tokens,
-        status: updateUserStatus.status,
-        isNewUser: false,
-      };
-      const accessToken = this.jwtService.sign(payload);
-      return { accessToken };
     } catch (error) {
       throw new InternalServerErrorException(error.message);
     }
+    const payload: PayloadJwtDto = {
+      userName: updateUserStatus.userName,
+      email: updateUserStatus.email,
+      level: updateUserStatus.level,
+      interests: updateUserStatus.interests,
+      isOlder18: updateUserStatus.isOlder18,
+      tokens: updateUserStatus.tokens,
+      status: updateUserStatus.status,
+      isNewUser: false,
+    };
+    const accessToken = this.jwtService.sign(payload);
+    return { accessToken };
   }
 }

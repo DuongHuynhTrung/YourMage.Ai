@@ -4,6 +4,7 @@ import {
   ConflictException,
   InternalServerErrorException,
   UnauthorizedException,
+  NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/user/entities/user.entity';
@@ -85,7 +86,7 @@ export class AuthService {
     }
   }
 
-  async signUp(signUpDto: SignUpDto): Promise<User> {
+  async signUp(signUpDto: SignUpDto): Promise<string> {
     const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?!.*\s).{8,}$/;
     if (!PASSWORD_REGEX.test(signUpDto.password)) {
       throw new BadRequestException(
@@ -117,7 +118,7 @@ export class AuthService {
       user.password = await bcrypt.hash(signUpDto.password, salt);
 
       await this.userRepository.save(user);
-      return user;
+      return 'Sign up successfully';
     } catch (error) {
       if (error.code === 11000) {
         throw new ConflictException('Email has already existed');
@@ -128,16 +129,21 @@ export class AuthService {
   }
 
   async signIn(signInDto: SignInDto): Promise<{ accessToken: string }> {
+    let user = null;
     try {
-      const user = await this.userRepository.findOneBy({
+      user = await this.userRepository.findOneBy({
         email: signInDto.email,
       });
-      if (!user) {
-        throw new Error(`User ${signInDto.email} does not exist`);
-      }
-      if (!user.status) {
-        throw new Error(`User status is ${user.status}`);
-      }
+    } catch (error) {
+      throw new InternalServerErrorException(error.message);
+    }
+    if (!user) {
+      throw new NotFoundException(`User ${signInDto.email} does not exist`);
+    }
+    if (!user.status) {
+      throw new BadRequestException(`User status is ${user.status}`);
+    }
+    try {
       const checkPassword = await bcrypt.compare(
         signInDto.password,
         user.password,
@@ -145,21 +151,21 @@ export class AuthService {
       if (!checkPassword) {
         throw new Error('Invalid password');
       }
-      const payload: PayloadJwtDto = {
-        userName: user.userName,
-        email: user.email,
-        level: user.level,
-        interests: user.interests,
-        isOlder18: user.isOlder18,
-        tokens: user.tokens,
-        status: user.status,
-        isNewUser: false,
-      };
-      const accessToken = this.jwtService.sign(payload);
-      return { accessToken };
     } catch (error) {
-      throw new UnauthorizedException(error.message);
+      throw new BadRequestException(error.message);
     }
+    const payload: PayloadJwtDto = {
+      userName: user.userName,
+      email: user.email,
+      level: user.level,
+      interests: user.interests,
+      isOlder18: user.isOlder18,
+      tokens: user.tokens,
+      status: user.status,
+      isNewUser: false,
+    };
+    const accessToken = this.jwtService.sign(payload);
+    return { accessToken };
   }
 
   async signInGoogle(

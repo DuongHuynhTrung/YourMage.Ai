@@ -11,7 +11,6 @@ import {
   ApiNotFoundResponse,
   ApiInternalServerErrorResponse,
 } from '@nestjs/swagger';
-import { User } from 'src/user/entities/user.entity';
 import GoogleTokenDto from './dto/google-token.dto';
 
 @ApiTags('Auth')
@@ -43,14 +42,13 @@ export class AuthController {
 
   @ApiOperation({ summary: 'Sign Up new User' })
   @ApiCreatedResponse({
-    description: 'Created user object as response',
-    type: User,
+    description: 'Sign up successfully',
   })
   @ApiBadRequestResponse({
     description: 'Email or Phone has already existed.',
   })
   @Post('signup')
-  signUp(@Body() signUpDto: SignUpDto): Promise<User> {
+  signUp(@Body() signUpDto: SignUpDto): Promise<string> {
     return this.authService.signUp(signUpDto);
   }
 

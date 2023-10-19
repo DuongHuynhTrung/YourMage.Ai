@@ -8,6 +8,7 @@ import { MailerModule } from '@nestjs-modules/mailer';
 import { EmailModule } from './email/email.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { SocketGateway } from 'socket.gateway';
+import { TransactionModule } from './transaction/transaction.module';
 
 @Module({
   imports: [
@@ -48,6 +49,7 @@ import { SocketGateway } from 'socket.gateway';
     AuthModule,
     UserModule,
     EmailModule,
+    TransactionModule,
   ],
   providers: [SocketGateway],
 })
