@@ -1,5 +1,6 @@
 import { UpdateInterestsDto } from './dto/update-interests.dto';
 import {
+  BadRequestException,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
@@ -36,143 +37,173 @@ export class UserService {
   }
 
   async upgradeLevelUser(email: string, level: LevelEnum): Promise<string> {
+    let user = null;
     try {
-      const user = await this.getUserByEmail(email);
-      if (!user) {
-        throw new Error(`User ${email} not found`);
-      }
-      if (!user.status) {
-        throw new Error(`User status is ${user.status}`);
-      }
-      user.level = level;
-      switch (level) {
-        case LevelEnum.APPRENTICE:
-          user.tokens = TokensEnum.APPRENTICE;
-          break;
-        case LevelEnum.ARTISAN:
-          user.tokens = TokensEnum.ARTISAN;
-          break;
-        case LevelEnum.MAESTRO:
-          user.tokens = TokensEnum.MAESTRO;
-          break;
-        default:
-          throw new Error(`Level ${level} not supported`);
-      }
-      user.upgradeLevelAt = new Date();
+      user = await this.getUserByEmail(email);
+    } catch (err) {
+      throw new InternalServerErrorException(err.message);
+    }
+    if (!user) {
+      throw new NotFoundException(`User ${email} not found`);
+    }
+    if (!user.status) {
+      throw new BadRequestException(`User status is ${user.status}`);
+    }
+    user.level = level;
+    switch (level) {
+      case LevelEnum.APPRENTICE:
+        user.tokens = TokensEnum.APPRENTICE;
+        break;
+      case LevelEnum.ARTISAN:
+        user.tokens = TokensEnum.ARTISAN;
+        break;
+      case LevelEnum.MAESTRO:
+        user.tokens = TokensEnum.MAESTRO;
+        break;
+      default:
+        throw new Error(`Level ${level} not supported`);
+    }
+    user.upgradeLevelAt = new Date();
+    try {
       const userUpgraded = await this.userRepository.save(user);
       if (!userUpgraded) {
         throw new Error(
           `Something went wrong when updating user level: ${level}`,
         );
       }
-      return 'User upgrade successfully';
     } catch (error) {
       throw new InternalServerErrorException(error.message);
     }
+    return 'User upgrade successfully';
   }
 
   async updateTokensWhenGenerate(email: string): Promise<string> {
+    let user = null;
     try {
-      const user = await this.getUserByEmail(email);
-      if (!user) {
-        throw new Error(`User ${email} not found`);
-      }
-      if (!user.status) {
-        throw new Error(`User status is ${user.status}`);
-      }
-      user.tokens = user.tokens - 20;
+      user = await this.getUserByEmail(email);
+    } catch (error) {
+      throw new InternalServerErrorException(error.message);
+    }
+    if (!user) {
+      throw new NotFoundException(`User ${email} not found`);
+    }
+    if (!user.status) {
+      throw new BadRequestException(`User status is ${user.status}`);
+    }
+    user.tokens = user.tokens - 20;
+    try {
       const updateNewTokens = await this.userRepository.save(user);
       if (!updateNewTokens) {
         throw new Error(
           `Something went wrong when updating new tokens after generating`,
         );
       }
-      this.socketGateway.handleUpdateTokens({
-        userId: user.email,
-        tokens: user.tokens,
-      });
-      return 'Updated Tokens successfully';
     } catch (error) {
       throw new InternalServerErrorException(error.message);
     }
+    this.socketGateway.handleUpdateTokens({
+      userId: user.email,
+      tokens: user.tokens,
+    });
+    return 'Updated Tokens successfully';
   }
 
   async changeUserName(email: string, userName: string): Promise<string> {
+    let user = null;
     try {
-      const user = await this.getUserByEmail(email);
-      if (!user) {
-        throw new Error(`User ${email} not found`);
-      }
-      if (!user.status) {
-        throw new Error(`User status is ${user.status}`);
-      }
-      const USERNAME_REGEX = /^[a-zA-Z0-9_]{4,15}$/;
-      if (!USERNAME_REGEX.test(userName)) {
-        throw new Error(`UserName is not following regex pattern`);
-      }
-      user.userName = userName;
+      user = await this.getUserByEmail(email);
+    } catch (error) {
+      throw new InternalServerErrorException(error.message);
+    }
+    if (!user) {
+      throw new NotFoundException(`User ${email} not found`);
+    }
+    if (!user.status) {
+      throw new BadRequestException(`User status is ${user.status}`);
+    }
+    const USERNAME_REGEX = /^[a-zA-Z0-9_]{4,15}$/;
+    if (!USERNAME_REGEX.test(userName)) {
+      throw new BadRequestException(`UserName is not following regex pattern`);
+    }
+    user.userName = userName;
+    try {
       const updateUserName = await this.userRepository.save(user);
       if (!updateUserName) {
         throw new Error(`Something went wrong when changing user name`);
       }
-      return 'UserName has been changed';
     } catch (error) {
       throw new InternalServerErrorException(error.message);
     }
+    return 'UserName has been changed';
   }
 
   async changeInterests(
     email: string,
     updateInterestsDto: UpdateInterestsDto,
   ): Promise<string> {
+    let user = null;
     try {
-      const user = await this.getUserByEmail(email);
-      if (!user) {
-        throw new Error(`User ${email} not found`);
-      }
-      if (!user.status) {
-        throw new Error(`User status is ${user.status}`);
-      }
-      user.interests = updateInterestsDto.interests;
+      user = await this.getUserByEmail(email);
+    } catch (error) {
+      throw new InternalServerErrorException(error.message);
+    }
+    if (!user) {
+      throw new NotFoundException(`User ${email} not found`);
+    }
+    if (!user.status) {
+      throw new BadRequestException(`User status is ${user.status}`);
+    }
+    user.interests = updateInterestsDto.interests;
+    try {
       const updateInterests = await this.userRepository.save(user);
       if (!updateInterests) {
         throw new Error(`Something went wrong when changing user name`);
       }
-      return 'Interests has been updated';
     } catch (error) {
       throw new InternalServerErrorException(error.message);
     }
+    return 'Interests has been updated';
   }
 
   async changeIsOlder18(email: string, isOlder18: boolean): Promise<string> {
+    let user = null;
     try {
-      const user = await this.getUserByEmail(email);
-      if (!user) {
-        throw new Error(`User ${email} not found`);
-      }
-      if (!user.status) {
-        throw new Error(`User status is ${user.status}`);
-      }
-      user.isOlder18 = isOlder18;
+      user = await this.getUserByEmail(email);
+    } catch (error) {
+      throw new InternalServerErrorException(error.message);
+    }
+    if (!user) {
+      throw new NotFoundException(`User ${email} not found`);
+    }
+    if (!user.status) {
+      throw new BadRequestException(`User status is ${user.status}`);
+    }
+    user.isOlder18 = isOlder18;
+    try {
       const updateIsOlder18 = await this.userRepository.save(user);
       if (!updateIsOlder18) {
         throw new Error(`Something went wrong when changing user name`);
       }
-      return 'IsOlder18 has been updated';
     } catch (error) {
       throw new InternalServerErrorException(error.message);
     }
+    return 'IsOlder18 has been updated';
   }
 
   async deleteUser(email: string): Promise<string> {
+    let user = null;
     try {
-      const user = await this.getUserByEmail(email);
-      if (!user) {
-        throw new Error(`User ${email} not found`);
-      }
-      if (!user.status) {
-        throw new Error(`User status is ${user.status}`);
-      }
+      user = await this.getUserByEmail(email);
+    } catch (error) {
+      throw new InternalServerErrorException(error.message);
+    }
+    if (!user) {
+      throw new NotFoundException(`User ${email} not found`);
+    }
+    if (!user.status) {
+      throw new BadRequestException(`User status is ${user.status}`);
+    }
+    try {
       const deleteUser = await this.userRepository.delete({ email });
       if (!deleteUser) {
         throw new InternalServerErrorException(
@@ -193,40 +224,44 @@ export class UserService {
   async handleUpdateTokens() {
     const today = new Date();
 
-    const users = await this.userRepository.find();
-    for (const user of users) {
-      if (user.level === LevelEnum.FREE) {
-        user.tokens = TokensEnum.FREE;
+    try {
+      const users = await this.userRepository.find();
+      for (const user of users) {
+        if (user.level === LevelEnum.FREE) {
+          user.tokens = TokensEnum.FREE;
 
-        await this.userRepository.save(user);
+          await this.userRepository.save(user);
 
-        this.socketGateway.handleUpdateTokens({
-          userId: user.email,
-          tokens: user.tokens,
-        });
-      } else if (
-        user.upgradeLevelAt &&
-        user.upgradeLevelAt.getDate === today.getDate
-      ) {
-        switch (user.level) {
-          case LevelEnum.APPRENTICE:
-            user.tokens = TokensEnum.APPRENTICE;
-            break;
-          case LevelEnum.ARTISAN:
-            user.tokens = TokensEnum.ARTISAN;
-            break;
-          case LevelEnum.MAESTRO:
-            user.tokens = TokensEnum.MAESTRO;
-            break;
+          this.socketGateway.handleUpdateTokens({
+            userId: user.email,
+            tokens: user.tokens,
+          });
+        } else if (
+          user.upgradeLevelAt &&
+          user.upgradeLevelAt.getDate === today.getDate
+        ) {
+          switch (user.level) {
+            case LevelEnum.APPRENTICE:
+              user.tokens = TokensEnum.APPRENTICE;
+              break;
+            case LevelEnum.ARTISAN:
+              user.tokens = TokensEnum.ARTISAN;
+              break;
+            case LevelEnum.MAESTRO:
+              user.tokens = TokensEnum.MAESTRO;
+              break;
+          }
+
+          await this.userRepository.save(user);
+
+          this.socketGateway.handleUpdateTokens({
+            userId: user.email,
+            tokens: user.tokens,
+          });
         }
-
-        await this.userRepository.save(user);
-
-        this.socketGateway.handleUpdateTokens({
-          userId: user.email,
-          tokens: user.tokens,
-        });
       }
+    } catch (error) {
+      throw new InternalServerErrorException(error.message);
     }
   }
 }
