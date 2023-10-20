@@ -4,17 +4,17 @@ import { Logger, ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, { cors: true });
 
-  app.enableCors({
-    origin: ['https://yourmageai.vercel.app', '*'],
-    allowedHeaders: [
-      'Access-Control-Allow-Origin',
-      'Access-Control-Allow-Methods',
-      'Access-Control-Allow-Headers',
-    ],
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
-  });
+  // app.enableCors({
+  //   origin: ['https://yourmageai.vercel.app', 'http://'],
+  //   allowedHeaders: [
+  //     'Access-Control-Allow-Origin',
+  //     'Access-Control-Allow-Methods',
+  //     'Access-Control-Allow-Headers',
+  //   ],
+  //   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
+  // });
 
   app.useGlobalGuards();
 
