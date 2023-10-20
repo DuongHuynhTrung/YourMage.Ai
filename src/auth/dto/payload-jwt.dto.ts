@@ -2,13 +2,13 @@ import {
   IsArray,
   IsBoolean,
   IsEmail,
-  IsEmpty,
   IsEnum,
   IsNotEmpty,
   IsNumber,
   IsString,
 } from 'class-validator';
 import { LevelEnum } from 'src/user/enum/level.enum';
+import { RoleEnum } from 'src/user/enum/role.enum';
 export class PayloadJwtDto {
   @IsString()
   @IsNotEmpty()
@@ -37,6 +37,10 @@ export class PayloadJwtDto {
   @IsNotEmpty()
   @IsBoolean()
   status: boolean;
+
+  @IsNotEmpty()
+  @IsEnum(RoleEnum)
+  role: RoleEnum;
 
   @IsBoolean()
   isNewUser: boolean;

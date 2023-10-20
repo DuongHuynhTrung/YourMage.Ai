@@ -8,6 +8,7 @@ import {
 import { ObjectId } from 'mongodb';
 import { ApiProperty } from '@nestjs/swagger';
 import { LevelEnum } from '../enum/level.enum';
+import { RoleEnum } from '../enum/role.enum';
 
 @Entity()
 export class User {
@@ -85,6 +86,13 @@ export class User {
   })
   @Column()
   upgradeLevelAt: Date;
+
+  @ApiProperty({
+    description: 'Role of User',
+    example: 'Admin',
+  })
+  @Column()
+  role: RoleEnum;
 
   @ApiProperty({
     description: 'Status of account',

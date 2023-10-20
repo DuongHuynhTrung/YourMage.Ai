@@ -17,6 +17,7 @@ import { JwtService } from '@nestjs/jwt';
 import { SignInGoogleDto } from './dto/sign-in-google.dto';
 import { LevelEnum } from 'src/user/enum/level.enum';
 import { OAuth2Client } from 'google-auth-library';
+import { RoleEnum } from 'src/user/enum/role.enum';
 
 @Injectable()
 export class AuthService {
@@ -48,6 +49,7 @@ export class AuthService {
           isOlder18: user.isOlder18,
           tokens: user.tokens,
           status: user.status,
+          role: user.role,
           isNewUser: false,
         };
         const accessToken = this.jwtService.sign(payload);
@@ -59,6 +61,7 @@ export class AuthService {
           level: LevelEnum.FREE,
           tokens: 150,
           status: true,
+          role: RoleEnum.USER,
         });
         if (!user) {
           throw new BadRequestException(
@@ -76,6 +79,7 @@ export class AuthService {
           isOlder18: user.isOlder18,
           tokens: user.tokens,
           status: user.status,
+          role: user.role,
           isNewUser: true,
         };
         const accessToken = this.jwtService.sign(payload);
@@ -113,6 +117,7 @@ export class AuthService {
     user.level = LevelEnum.FREE;
     user.tokens = 150;
     user.status = false;
+    user.role = RoleEnum.USER;
     try {
       const salt = await bcrypt.genSalt();
       user.password = await bcrypt.hash(signUpDto.password, salt);
@@ -162,6 +167,7 @@ export class AuthService {
       isOlder18: user.isOlder18,
       tokens: user.tokens,
       status: user.status,
+      role: user.role,
       isNewUser: false,
     };
     const accessToken = this.jwtService.sign(payload);
@@ -184,6 +190,7 @@ export class AuthService {
           isOlder18: isExist.isOlder18,
           tokens: isExist.tokens,
           status: isExist.status,
+          role: isExist.role,
           isNewUser: false,
         };
         const accessToken = this.jwtService.sign(payload);
@@ -207,6 +214,7 @@ export class AuthService {
           isOlder18: isExist.isOlder18,
           tokens: isExist.tokens,
           status: isExist.status,
+          role: isExist.role,
           isNewUser: false,
         };
         const accessToken = this.jwtService.sign(payload);
