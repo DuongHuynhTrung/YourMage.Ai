@@ -7,7 +7,7 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   app.enableCors({
-    origin: '*',
+    origin: ['https://yourmageai.vercel.app', '*'],
     allowedHeaders: [
       'Access-Control-Allow-Origin',
       'Access-Control-Allow-Methods',
