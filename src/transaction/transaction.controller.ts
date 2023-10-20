@@ -20,6 +20,9 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { JwtGuard } from 'src/auth/jwt.guard';
+import { RolesGuard } from 'src/auth/role.guard';
+import { Roles } from 'src/auth/role.decorator';
+import { RoleEnum } from 'src/user/enum/role.enum';
 
 @ApiTags('Transaction')
 @ApiBearerAuth()
@@ -42,6 +45,8 @@ export class TransactionController {
     description: 'Internal server error.',
   })
   @HttpCode(HttpStatus.OK)
+  @UseGuards(RolesGuard)
+  @Roles(RoleEnum.ADMIN)
   @Post()
   create(
     @Body() createTransactionDto: CreateTransactionDto,
@@ -61,6 +66,8 @@ export class TransactionController {
     description: 'Internal server error.',
   })
   @HttpCode(HttpStatus.OK)
+  @UseGuards(RolesGuard)
+  @Roles(RoleEnum.ADMIN)
   @Get()
   findAll(): Promise<Transaction[]> {
     return this.transactionService.findAll();

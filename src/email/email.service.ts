@@ -257,6 +257,7 @@ export class EmailService {
       isOlder18: updateUserStatus.isOlder18,
       tokens: updateUserStatus.tokens,
       status: updateUserStatus.status,
+      role: updateUserStatus.role,
       isNewUser: false,
     };
     const accessToken = this.jwtService.sign(payload);

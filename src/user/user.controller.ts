@@ -19,7 +19,6 @@ import {
   ApiInternalServerErrorResponse,
   ApiBadRequestResponse,
 } from '@nestjs/swagger';
-import { RolesGuard } from 'src/auth/level.guard';
 import { LevelEnum } from './enum/level.enum';
 import { UpdateInterestsDto } from './dto/update-interests.dto';
 
@@ -164,7 +163,6 @@ export class UserController {
   @ApiInternalServerErrorResponse({
     description: 'Internal server error.',
   })
-  @UseGuards(RolesGuard)
   @Delete(':email')
   deleteUserByEmail(@Param('email') email: string): Promise<string> {
     return this.userService.deleteUser(email);
