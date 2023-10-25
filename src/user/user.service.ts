@@ -1,3 +1,4 @@
+import { HistoryImageGenerateDto } from './dto/history-image-generate.dto';
 import { UpdateInterestsDto } from './dto/update-interests.dto';
 import {
   BadRequestException,
@@ -105,7 +106,7 @@ export class UserService {
       userId: user.email,
       tokens: user.tokens,
     });
-    return 'Updated Tokens successfully';
+    return user;
   }
 
   async changeUserName(email: string, userName: string): Promise<string> {
@@ -218,6 +219,24 @@ export class UserService {
     } catch (error) {
       throw new InternalServerErrorException(error.message);
     }
+  }
+
+  async historyImageGenerate(
+    user: User,
+    historyImageGenerateDto: HistoryImageGenerateDto,
+  ): Promise<User> {
+    if (user.historyImageGenerated != undefined) {
+      user.historyImageGenerated.push(historyImageGenerateDto);
+    } else {
+      user.historyImageGenerated = [historyImageGenerateDto];
+    }
+
+    try {
+      await this.userRepository.save(user);
+    } catch (error) {
+      throw new InternalServerErrorException(error.message);
+    }
+    return user;
   }
 
   @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)

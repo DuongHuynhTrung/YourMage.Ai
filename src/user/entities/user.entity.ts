@@ -9,6 +9,7 @@ import { ObjectId } from 'mongodb';
 import { ApiProperty } from '@nestjs/swagger';
 import { LevelEnum } from '../enum/level.enum';
 import { RoleEnum } from '../enum/role.enum';
+import { HistoryImageGenerateDto } from '../dto/history-image-generate.dto';
 
 @Entity()
 export class User {
@@ -93,6 +94,9 @@ export class User {
   })
   @Column()
   role: RoleEnum;
+
+  @Column()
+  historyImageGenerated: [HistoryImageGenerateDto];
 
   @ApiProperty({
     description: 'Status of account',
