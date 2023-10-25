@@ -1,3 +1,4 @@
+import { HistoryImageGenerateDto } from './dto/history-image-generate.dto';
 import {
   Controller,
   Get,
@@ -6,6 +7,7 @@ import {
   Body,
   Delete,
   UseGuards,
+  Post,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { User } from './entities/user.entity';
@@ -21,6 +23,7 @@ import {
 } from '@nestjs/swagger';
 import { LevelEnum } from './enum/level.enum';
 import { UpdateInterestsDto } from './dto/update-interests.dto';
+import { GetUser } from 'src/auth/get-user.decorator';
 
 @UseGuards(JwtGuard)
 @ApiTags('User')
@@ -166,5 +169,20 @@ export class UserController {
   @Delete(':email')
   deleteUserByEmail(@Param('email') email: string): Promise<string> {
     return this.userService.deleteUser(email);
+  }
+
+  @ApiOperation({ summary: 'Add History Image Generated' })
+  @ApiOkResponse({
+    type: User,
+  })
+  @ApiInternalServerErrorResponse({
+    description: 'Internal server error.',
+  })
+  @Post('historyImageGenerated')
+  addHistoryImageGenerate(
+    @GetUser() user: User,
+    @Body() historyImageGenerateDto: HistoryImageGenerateDto,
+  ): Promise<User> {
+    return this.userService.historyImageGenerate(user, historyImageGenerateDto);
   }
 }
