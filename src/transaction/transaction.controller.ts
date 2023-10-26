@@ -46,7 +46,7 @@ export class TransactionController {
   })
   @HttpCode(HttpStatus.OK)
   @UseGuards(RolesGuard)
-  @Roles(RoleEnum.ADMIN)
+  @Roles(RoleEnum.USER)
   @Post()
   create(
     @Body() createTransactionDto: CreateTransactionDto,

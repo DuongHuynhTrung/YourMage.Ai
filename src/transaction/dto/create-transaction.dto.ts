@@ -7,6 +7,7 @@ import {
   IsString,
 } from 'class-validator';
 import { LevelEnum } from 'src/user/enum/level.enum';
+import { ConstantPaymentEnum } from '../enum/constant-payment.enum';
 
 export class CreateTransactionDto {
   @ApiProperty({
@@ -43,6 +44,14 @@ export class CreateTransactionDto {
   @IsNotEmpty()
   @IsEnum(LevelEnum)
   level: LevelEnum;
+
+  @ApiProperty({
+    description: 'Constant Payment',
+    example: ConstantPaymentEnum.MONTHLY,
+  })
+  @IsNotEmpty()
+  @IsEnum(ConstantPaymentEnum)
+  constantPayment: ConstantPaymentEnum;
 
   @ApiProperty({
     description: 'Amount of money',

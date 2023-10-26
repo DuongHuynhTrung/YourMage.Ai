@@ -9,6 +9,7 @@ import { EmailModule } from './email/email.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { SocketGateway } from 'socket.gateway';
 import { TransactionModule } from './transaction/transaction.module';
+import { ShareImageModule } from './share-image/share-image.module';
 
 @Module({
   imports: [
@@ -50,6 +51,7 @@ import { TransactionModule } from './transaction/transaction.module';
     UserModule,
     EmailModule,
     TransactionModule,
+    ShareImageModule,
   ],
   providers: [SocketGateway],
 })
