@@ -34,7 +34,7 @@ export class CreateTransactionDto {
   })
   @IsNotEmpty()
   @IsString()
-  sđt: string;
+  phoneNumber: string;
 
   @ApiProperty({
     description: 'Level of User',
