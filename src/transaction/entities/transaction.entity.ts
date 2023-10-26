@@ -8,6 +8,7 @@ import {
   ObjectIdColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { ConstantPaymentEnum } from '../enum/constant-payment.enum';
 
 @Entity()
 export class Transaction {
@@ -39,7 +40,7 @@ export class Transaction {
     example: '0942859224',
   })
   @Column({ nullable: false })
-  sđt: string;
+  phoneNumber: string;
 
   @ApiProperty({
     description: 'Level of User',
@@ -55,6 +56,13 @@ export class Transaction {
   })
   @Column({ nullable: false })
   amount: number;
+
+  @ApiProperty({
+    description: 'Constant Payment',
+    example: ConstantPaymentEnum.MONTHLY,
+  })
+  @Column({ nullable: false })
+  constantPayment: ConstantPaymentEnum;
 
   @CreateDateColumn()
   createdAt: Date;
