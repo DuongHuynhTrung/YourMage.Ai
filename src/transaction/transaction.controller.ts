@@ -46,7 +46,7 @@ export class TransactionController {
   @ApiInternalServerErrorResponse({
     description: 'Internal server error.',
   })
-  @HttpCode(HttpStatus.OK)
+  @HttpCode(HttpStatus.CREATED)
   @UseGuards(RolesGuard)
   @Roles(RoleEnum.USER)
   @Post()
@@ -77,7 +77,7 @@ export class TransactionController {
 
   @ApiOperation({ summary: 'Upgrade User Level by email' })
   @ApiOkResponse({
-    description: 'User updated successfully',
+    type: [Transaction],
   })
   @ApiNotFoundResponse({
     description: 'User not found.',
@@ -98,9 +98,9 @@ export class TransactionController {
   @UseGuards(RolesGuard)
   @Roles(RoleEnum.ADMIN)
   @Patch('/confirmTransaction')
-  upgradeUserLevel(
-    @Body() confirmTransaction: ConfirmTransactionDto,
-  ): Promise<string> {
-    return this.transactionService.confirmTransaction(confirmTransaction);
+  confirmTransaction(
+    @Body() confirmTransactionDto: ConfirmTransactionDto,
+  ): Promise<Transaction[]> {
+    return this.transactionService.confirmTransaction(confirmTransactionDto);
   }
 }
