@@ -9,6 +9,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { ConstantPaymentEnum } from '../enum/constant-payment.enum';
+import { PaymentStatus } from '../enum/payment-status.enum';
 
 @Entity()
 export class Transaction {
@@ -63,6 +64,13 @@ export class Transaction {
   })
   @Column({ nullable: false })
   constantPayment: ConstantPaymentEnum;
+
+  @ApiProperty({
+    description: 'Payment Status',
+    example: PaymentStatus.PENDING,
+  })
+  @Column({ nullable: false })
+  paymentStatus: PaymentStatus;
 
   @CreateDateColumn()
   createdAt: Date;

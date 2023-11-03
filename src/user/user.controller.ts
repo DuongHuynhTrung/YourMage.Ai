@@ -21,7 +21,6 @@ import {
   ApiInternalServerErrorResponse,
   ApiBadRequestResponse,
 } from '@nestjs/swagger';
-import { LevelEnum } from './enum/level.enum';
 import { UpdateInterestsDto } from './dto/update-interests.dto';
 import { GetUser } from 'src/auth/get-user.decorator';
 
@@ -46,30 +45,6 @@ export class UserController {
   @Get(':email')
   getUserByEmail(@Param('email') email: string): Promise<User> {
     return this.userService.getUserByEmail(email);
-  }
-
-  @ApiOperation({ summary: 'Upgrade User Level by email' })
-  @ApiOkResponse({
-    description: 'User updated successfully',
-  })
-  @ApiNotFoundResponse({
-    description: 'User not found.',
-  })
-  @ApiBadRequestResponse({
-    description: 'User status is false.',
-  })
-  @ApiBadRequestResponse({
-    description: 'Level is not supported.',
-  })
-  @ApiInternalServerErrorResponse({
-    description: 'Internal server error.',
-  })
-  @Patch(':email/level/:level')
-  upgradeUserLevel(
-    @Param('email') email: string,
-    @Param('level') level: LevelEnum,
-  ): Promise<string> {
-    return this.userService.upgradeLevelUser(email, level);
   }
 
   @ApiOperation({ summary: 'Update Tokens When User Generate Image' })

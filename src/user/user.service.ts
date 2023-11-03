@@ -37,47 +37,6 @@ export class UserService {
     }
   }
 
-  async upgradeLevelUser(email: string, level: LevelEnum): Promise<string> {
-    let user = null;
-    try {
-      user = await this.getUserByEmail(email);
-    } catch (err) {
-      throw new InternalServerErrorException(err.message);
-    }
-    if (!user) {
-      throw new NotFoundException(`User ${email} not found`);
-    }
-    if (!user.status) {
-      throw new BadRequestException(`User status is ${user.status}`);
-    }
-    user.level = level;
-    switch (level) {
-      case LevelEnum.APPRENTICE:
-        user.tokens = TokensEnum.APPRENTICE;
-        break;
-      case LevelEnum.ARTISAN:
-        user.tokens = TokensEnum.ARTISAN;
-        break;
-      case LevelEnum.MAESTRO:
-        user.tokens = TokensEnum.MAESTRO;
-        break;
-      default:
-        throw new Error(`Level ${level} not supported`);
-    }
-    user.upgradeLevelAt = new Date();
-    try {
-      const userUpgraded = await this.userRepository.save(user);
-      if (!userUpgraded) {
-        throw new Error(
-          `Something went wrong when updating user level: ${level}`,
-        );
-      }
-    } catch (error) {
-      throw new InternalServerErrorException(error.message);
-    }
-    return 'User upgrade successfully';
-  }
-
   async updateTokensWhenGenerate(email: string): Promise<string> {
     let user = null;
     try {
@@ -237,6 +196,18 @@ export class UserService {
       throw new InternalServerErrorException(error.message);
     }
     return user;
+  }
+
+  async updateUser(user: User) {
+    try {
+      const userUpgraded = await this.userRepository.save(user);
+      if (!userUpgraded) {
+        throw new Error(`Something went wrong when saving user`);
+      }
+      return true;
+    } catch (error) {
+      throw new InternalServerErrorException(error.message);
+    }
   }
 
   @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)

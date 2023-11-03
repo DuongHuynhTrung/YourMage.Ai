@@ -13,8 +13,6 @@ import { JwtGuard } from 'src/auth/jwt.guard';
 import { ShareImage } from './entities/share-image.entity';
 
 @ApiTags('Share Image')
-@ApiBearerAuth()
-@UseGuards(JwtGuard)
 @Controller('shareImage')
 export class ShareImageController {
   constructor(private readonly shareImageService: ShareImageService) {}
@@ -29,8 +27,12 @@ export class ShareImageController {
   @ApiInternalServerErrorResponse({
     description: 'Internal server error.',
   })
+  @ApiBearerAuth()
+  @UseGuards(JwtGuard)
   @Post()
-  shareImage(@Body() createShareImageDto: CreateShareImageDto) {
+  shareImage(
+    @Body() createShareImageDto: CreateShareImageDto,
+  ): Promise<string> {
     return this.shareImageService.shareImage(createShareImageDto);
   }
 
@@ -45,7 +47,7 @@ export class ShareImageController {
     description: 'Internal server error.',
   })
   @Get()
-  getAll() {
+  getAll(): Promise<ShareImage[]> {
     return this.shareImageService.getAll();
   }
 }

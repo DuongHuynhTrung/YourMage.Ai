@@ -6,10 +6,12 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Transaction } from './entities/transaction.entity';
 import { User } from 'src/user/entities/user.entity';
 import { SocketGateway } from 'socket.gateway';
+import { MessageService } from 'src/message/message.service';
+import { Message } from 'src/message/entities/message.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Transaction, User])],
+  imports: [TypeOrmModule.forFeature([Transaction, User, Message])],
   controllers: [TransactionController],
-  providers: [TransactionService, UserService, SocketGateway],
+  providers: [TransactionService, UserService, SocketGateway, MessageService],
 })
 export class TransactionModule {}
