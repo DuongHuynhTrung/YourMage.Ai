@@ -73,7 +73,7 @@ export class TransactionService {
 
   async confirmTransaction(
     confirmTransactionDto: ConfirmTransactionDto,
-  ): Promise<string> {
+  ): Promise<Transaction[]> {
     const transactionId = ObjectId.createFromHexString(
       confirmTransactionDto.transactionId,
     );
@@ -85,14 +85,15 @@ export class TransactionService {
         },
       });
     } catch (error) {
-      throw new InternalServerErrorException(error.message);
+      throw new InternalServerErrorException(
+        'Something went wrong when fetching transaction',
+      );
     }
     if (!transaction || transaction === null) {
       throw new NotFoundException(
         `Transaction with id ${transactionId} not found`,
       );
     }
-    transaction.paymentStatus = PaymentStatus.COMPLETED;
     let user: User = null;
     try {
       user = await this.userService.getUserByEmail(transaction.email);
@@ -104,13 +105,6 @@ export class TransactionService {
     }
     if (!user.status) {
       throw new BadRequestException(`User status is ${user.status}`);
-    }
-    try {
-      await this.transactionRepository.save(transaction);
-    } catch (error) {
-      throw new InternalServerErrorException(
-        `Something went wrong when updating transaction status`,
-      );
     }
     user.level = transaction.level;
     switch (transaction.level) {
@@ -124,11 +118,21 @@ export class TransactionService {
         user.tokens = TokensEnum.MAESTRO;
         break;
       default:
-        throw new Error(`Level ${transaction.level} not supported`);
+        throw new BadRequestException(
+          `Level ${transaction.level} not supported`,
+        );
+    }
+    transaction.paymentStatus = PaymentStatus.COMPLETED;
+    try {
+      await this.transactionRepository.save(transaction);
+    } catch (error) {
+      throw new InternalServerErrorException(
+        `Something went wrong when updating transaction status`,
+      );
     }
     user.upgradeLevelAt = new Date();
     try {
-      const userUpgraded = this.userService.updateUser(user);
+      const userUpgraded = await this.userService.updateUser(user);
       if (!userUpgraded) {
         throw new Error(
           `Something went wrong when updating user level: ${transaction.level}`,
@@ -137,6 +141,7 @@ export class TransactionService {
     } catch (error) {
       throw new InternalServerErrorException(error.message);
     }
-    return 'User upgrade successfully';
+
+    return await this.findAll();
   }
 }
