@@ -2,6 +2,7 @@ import {
   Controller,
   Get,
   Post,
+  Patch,
   Body,
   HttpCode,
   HttpStatus,
@@ -23,6 +24,7 @@ import { JwtGuard } from 'src/auth/jwt.guard';
 import { RolesGuard } from 'src/auth/role.guard';
 import { Roles } from 'src/auth/role.decorator';
 import { RoleEnum } from 'src/user/enum/role.enum';
+import { ConfirmTransactionDto } from './dto/confirm-transaction.dto';
 
 @ApiTags('Transaction')
 @ApiBearerAuth()
@@ -71,5 +73,34 @@ export class TransactionController {
   @Get()
   findAll(): Promise<Transaction[]> {
     return this.transactionService.findAll();
+  }
+
+  @ApiOperation({ summary: 'Upgrade User Level by email' })
+  @ApiOkResponse({
+    description: 'User updated successfully',
+  })
+  @ApiNotFoundResponse({
+    description: 'User not found.',
+  })
+  @ApiNotFoundResponse({
+    description: '`Transaction with id not found.',
+  })
+  @ApiBadRequestResponse({
+    description: 'User status is false.',
+  })
+  @ApiBadRequestResponse({
+    description: 'Level is not supported.',
+  })
+  @ApiInternalServerErrorResponse({
+    description: 'Internal server error.',
+  })
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(RolesGuard)
+  @Roles(RoleEnum.ADMIN)
+  @Patch('/confirmTransaction')
+  upgradeUserLevel(
+    @Body() confirmTransaction: ConfirmTransactionDto,
+  ): Promise<string> {
+    return this.transactionService.confirmTransaction(confirmTransaction);
   }
 }

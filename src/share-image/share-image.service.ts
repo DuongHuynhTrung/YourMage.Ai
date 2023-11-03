@@ -15,7 +15,7 @@ export class ShareImageService {
     private readonly shareImageRepository: Repository<ShareImage>,
   ) {}
 
-  async shareImage(createShareImageDto: CreateShareImageDto) {
+  async shareImage(createShareImageDto: CreateShareImageDto): Promise<string> {
     let shareImages: ShareImage[] = null;
     try {
       shareImages = await this.shareImageRepository.find();
@@ -49,8 +49,7 @@ export class ShareImageService {
     }
   }
 
-  async getAll() {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  async getAll(): Promise<ShareImage[]> {
     try {
       const shareImages = await this.shareImageRepository.find();
       if (!shareImages || shareImages.length === 0) {
