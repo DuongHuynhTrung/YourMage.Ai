@@ -22,7 +22,7 @@ export class CreateMessageDto {
 
   @ApiProperty({
     description: 'Sender',
-    example: 'User/Bot',
+    example: 'user',
     nullable: false,
   })
   @IsNotEmpty()
