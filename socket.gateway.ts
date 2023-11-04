@@ -1,4 +1,3 @@
-import { GetAllMessageDto } from './src/message/dto/get-all-message.dto';
 import { CreateMessageDto } from './src/message/dto/create-message.dto';
 import {
   SubscribeMessage,
@@ -25,19 +24,16 @@ export class SocketGateway {
 
   async handleMessage() {
     // Emit all existing messages to the new socket
-    this.server.on(
-      'authorMessage',
-      async (getAllMessageDto: GetAllMessageDto) => {
-        this.server.emit(
-          'allMessages',
-          await this.messageService.getAllMessages(getAllMessageDto),
-        );
-      },
-    );
+    this.server.on('all_message', async (getAllMessageDto: string) => {
+      this.server.emit(
+        'all_message',
+        await this.messageService.getAllMessages(getAllMessageDto),
+      );
+    });
 
     // Listen for new messages from the socket
     this.server.on(
-      'createMessage',
+      'send_message',
       async (createMessageDto: CreateMessageDto) => {
         // Create a new message object
 
@@ -46,7 +42,7 @@ export class SocketGateway {
           await this.messageService.createMessage(createMessageDto);
 
         // Emit the new message to all connected sockets
-        this.server.emit('message', message);
+        this.server.emit('send_message', message);
       },
     );
   }

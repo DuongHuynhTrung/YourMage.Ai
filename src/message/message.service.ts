@@ -1,4 +1,3 @@
-import { GetAllMessageDto } from './dto/get-all-message.dto';
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { CreateMessageDto } from './dto/create-message.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -21,11 +20,11 @@ export class MessageService {
     }
   }
 
-  async getAllMessages(getAllMessageDto: GetAllMessageDto): Promise<Message[]> {
+  async getAllMessages(authorEmail: string): Promise<Message[]> {
     try {
       return await this.messageRepository.find({
         where: {
-          authorEmail: getAllMessageDto.authorEmail,
+          authorEmail,
         },
       });
     } catch (error) {

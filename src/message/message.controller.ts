@@ -1,5 +1,4 @@
-import { GetAllMessageDto } from './dto/get-all-message.dto';
-import { Controller, Get, Post, Body } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param } from '@nestjs/common';
 import { MessageService } from './message.service';
 import { CreateMessageDto } from './dto/create-message.dto';
 import { Message } from './entities/message.entity';
@@ -34,8 +33,10 @@ export class MessageController {
   @ApiInternalServerErrorResponse({
     description: 'Internal server error.',
   })
-  @Get()
-  getAllMessages(getAllMessageDto: GetAllMessageDto): Promise<Message[]> {
-    return this.messageService.getAllMessages(getAllMessageDto);
+  @Get('/:authorEmail')
+  getAllMessages(
+    @Param('authorEmail') authorEmail: string,
+  ): Promise<Message[]> {
+    return this.messageService.getAllMessages(authorEmail);
   }
 }
