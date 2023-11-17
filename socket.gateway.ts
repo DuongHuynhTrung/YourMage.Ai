@@ -24,26 +24,29 @@ export class SocketGateway {
 
   async handleMessage() {
     // Emit all existing messages to the new socket
-    this.server.on('all_message', async (getAllMessageDto: string) => {
+    this.server.on('all_message', async (authorEmail) => {
+      console.log(authorEmail.data.param);
+      console.log(authorEmail);
       this.server.emit(
         'all_message',
-        await this.messageService.getAllMessages(getAllMessageDto),
+        await this.messageService.getAllMessages(authorEmail),
       );
     });
 
     // Listen for new messages from the socket
-    this.server.on(
-      'send_message',
-      async (createMessageDto: CreateMessageDto) => {
-        // Create a new message object
+    this.server.on('send_message', async (createMessageDto) => {
+      // Create a new message object
 
-        // Save the message to MongoDB
-        const message =
-          await this.messageService.createMessage(createMessageDto);
+      console.log(createMessageDto);
 
-        // Emit the new message to all connected sockets
-        this.server.emit('send_message', message);
-      },
-    );
+      // Save the message to MongoDB
+      const message = await this.messageService.createMessage(createMessageDto);
+
+      // Emit the new message to all connected sockets
+      this.server.emit(
+        'all_message',
+        await this.messageService.getAllMessages(createMessageDto.authorEmail),
+      );
+    });
   }
 }

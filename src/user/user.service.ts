@@ -23,6 +23,33 @@ export class UserService {
     private readonly socketGateway: SocketGateway, // Inject SocketGateway
   ) {}
 
+  async getUsers(page: number): Promise<User[]> {
+    const limit = 10;
+    const startIndex = (page - 1) * limit;
+    const endIndex = startIndex + limit;
+    try {
+      const users = await this.userRepository.find();
+      if (!users || users.length === 0) {
+        throw new NotFoundException('Have no users in the repository');
+      }
+      return users.slice(startIndex, endIndex);
+    } catch (error) {
+      throw new NotFoundException(error.message);
+    }
+  }
+
+  async getTotalUser(): Promise<number> {
+    try {
+      const users = await this.userRepository.find();
+      if (!users || users.length === 0) {
+        throw new NotFoundException('Have no users in the repository');
+      }
+      return users.length;
+    } catch (error) {
+      throw new NotFoundException(error.message);
+    }
+  }
+
   async getUserByEmail(email: string): Promise<User> {
     try {
       const user = await this.userRepository.findOneBy({
