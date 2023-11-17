@@ -7,6 +7,7 @@ import {
   HttpCode,
   HttpStatus,
   UseGuards,
+  Query,
 } from '@nestjs/common';
 import { TransactionService } from './transaction.service';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
@@ -53,7 +54,7 @@ export class TransactionController {
   create(
     @Body() createTransactionDto: CreateTransactionDto,
   ): Promise<Transaction> {
-    return this.transactionService.create(createTransactionDto);
+    return this.transactionService.createTransaction(createTransactionDto);
   }
 
   @ApiOperation({ summary: 'Get All Transaction' })
@@ -71,8 +72,8 @@ export class TransactionController {
   @UseGuards(RolesGuard)
   @Roles(RoleEnum.ADMIN)
   @Get()
-  findAll(): Promise<Transaction[]> {
-    return this.transactionService.findAll();
+  findAll(@Query('page') page: number): Promise<Transaction[]> {
+    return this.transactionService.getTransactions(page);
   }
 
   @ApiOperation({ summary: 'Upgrade User Level by email' })

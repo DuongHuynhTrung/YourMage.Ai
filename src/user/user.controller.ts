@@ -8,6 +8,7 @@ import {
   Delete,
   UseGuards,
   Post,
+  Query,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { User } from './entities/user.entity';
@@ -23,6 +24,9 @@ import {
 } from '@nestjs/swagger';
 import { UpdateInterestsDto } from './dto/update-interests.dto';
 import { GetUser } from 'src/auth/get-user.decorator';
+import { RolesGuard } from 'src/auth/role.guard';
+import { Roles } from 'src/auth/role.decorator';
+import { RoleEnum } from './enum/role.enum';
 
 @UseGuards(JwtGuard)
 @ApiTags('User')
@@ -30,6 +34,42 @@ import { GetUser } from 'src/auth/get-user.decorator';
 @Controller('users')
 export class UserController {
   constructor(private readonly userService: UserService) {}
+
+  @ApiOperation({ summary: 'Get Users with Pagination' })
+  @ApiOkResponse({
+    description: 'The user has been successfully retrieved.',
+    type: [User],
+  })
+  @ApiNotFoundResponse({
+    description: 'Have no User in the repository.',
+  })
+  @ApiInternalServerErrorResponse({
+    description: 'Internal server error.',
+  })
+  @UseGuards(RolesGuard)
+  @Roles(RoleEnum.ADMIN)
+  @Get()
+  getAllUsers(@Query('page') page: number): Promise<User[]> {
+    return this.userService.getUsers(page);
+  }
+
+  @ApiOperation({ summary: 'Get Users with Pagination' })
+  @ApiOkResponse({
+    description: 'The user has been successfully retrieved.',
+    type: [User],
+  })
+  @ApiNotFoundResponse({
+    description: 'Have no User in the repository.',
+  })
+  @ApiInternalServerErrorResponse({
+    description: 'Internal server error.',
+  })
+  @UseGuards(RolesGuard)
+  @Roles(RoleEnum.ADMIN)
+  @Get('/totalUsers')
+  getTotalUsers(): Promise<number> {
+    return this.userService.getTotalUser();
+  }
 
   @ApiOperation({ summary: 'Get a user by email' })
   @ApiOkResponse({

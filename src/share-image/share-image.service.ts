@@ -38,7 +38,6 @@ export class ShareImageService {
       shareImages.map(async (shareImage: ShareImage) => {
         length += shareImage.list.length;
       });
-      console.log(length);
       const data_project = (length % 5) + 1;
       shareImages.map(async (shareImage: ShareImage) => {
         if (shareImage.data_project === data_project) {
@@ -46,6 +45,7 @@ export class ShareImageService {
           await this.shareImageRepository.save(shareImage);
         }
       });
+      return 'Share Image Successfully';
     }
   }
 

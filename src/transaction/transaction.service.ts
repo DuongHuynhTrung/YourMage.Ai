@@ -25,7 +25,7 @@ export class TransactionService {
     private readonly userService: UserService,
   ) {}
 
-  async create(
+  async createTransaction(
     createTransactionDto: CreateTransactionDto,
   ): Promise<Transaction> {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -59,13 +59,16 @@ export class TransactionService {
     return transaction;
   }
 
-  async findAll(): Promise<Transaction[]> {
+  async getTransactions(page: number): Promise<Transaction[]> {
+    const limit = 10;
+    const startIndex = (page - 1) * limit;
+    const endIndex = startIndex + limit;
     try {
       const transactions = await this.transactionRepository.find();
       if (!transactions || transactions.length === 0) {
         throw new NotFoundException(`Have no transactions`);
       }
-      return transactions;
+      return transactions.slice(startIndex, endIndex);
     } catch (error) {
       throw new NotFoundException(error.message);
     }
@@ -142,6 +145,6 @@ export class TransactionService {
       throw new InternalServerErrorException(error.message);
     }
 
-    return await this.findAll();
+    return await this.getTransactions(1);
   }
 }
