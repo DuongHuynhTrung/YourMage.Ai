@@ -76,6 +76,24 @@ export class TransactionController {
     return this.transactionService.getTransactions(page);
   }
 
+  @ApiOperation({ summary: 'Get Total Transaction' })
+  @ApiOkResponse({
+    description: '30',
+  })
+  @ApiNotFoundResponse({
+    description: 'Have no transaction',
+  })
+  @ApiInternalServerErrorResponse({
+    description: 'Internal server error.',
+  })
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(RolesGuard)
+  @Roles(RoleEnum.ADMIN)
+  @Get('totalTransactions')
+  getTotalTransactions(): Promise<number> {
+    return this.transactionService.getTotalTransactions();
+  }
+
   @ApiOperation({ summary: 'Upgrade User Level by email' })
   @ApiOkResponse({
     type: [Transaction],

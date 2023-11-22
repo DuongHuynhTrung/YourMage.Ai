@@ -74,6 +74,18 @@ export class TransactionService {
     }
   }
 
+  async getTotalTransactions(): Promise<number> {
+    try {
+      const transactions = await this.transactionRepository.find();
+      if (!transactions || transactions.length === 0) {
+        throw new NotFoundException(`Have no transactions`);
+      }
+      return transactions.length;
+    } catch (error) {
+      throw new NotFoundException(error.message);
+    }
+  }
+
   async confirmTransaction(
     confirmTransactionDto: ConfirmTransactionDto,
   ): Promise<Transaction[]> {

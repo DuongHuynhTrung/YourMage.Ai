@@ -53,10 +53,9 @@ export class UserController {
     return this.userService.getUsers(page);
   }
 
-  @ApiOperation({ summary: 'Get Users with Pagination' })
+  @ApiOperation({ summary: 'Get Total Number of User' })
   @ApiOkResponse({
-    description: 'The user has been successfully retrieved.',
-    type: [User],
+    description: '200',
   })
   @ApiNotFoundResponse({
     description: 'Have no User in the repository.',
