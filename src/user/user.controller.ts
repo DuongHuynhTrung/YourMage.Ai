@@ -49,8 +49,11 @@ export class UserController {
   @UseGuards(RolesGuard)
   @Roles(RoleEnum.ADMIN)
   @Get()
-  getAllUsers(@Query('page') page: number): Promise<User[]> {
-    return this.userService.getUsers(page);
+  getAllUsers(
+    @Query('page') page: number,
+    @Query('level') level: string,
+  ): Promise<User[]> {
+    return this.userService.getUsers(page, level);
   }
 
   @ApiOperation({ summary: 'Get Total Number of User' })
@@ -66,8 +69,8 @@ export class UserController {
   @UseGuards(RolesGuard)
   @Roles(RoleEnum.ADMIN)
   @Get('/totalUsers')
-  getTotalUsers(): Promise<number> {
-    return this.userService.getTotalUser();
+  getTotalUsers(@Query('level') level: string): Promise<number> {
+    return this.userService.getTotalUser(level);
   }
 
   @ApiOperation({ summary: 'Get a user by email' })
