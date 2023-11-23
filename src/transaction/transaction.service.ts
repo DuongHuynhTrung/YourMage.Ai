@@ -69,7 +69,7 @@ export class TransactionService {
         throw new NotFoundException(`Have no transactions`);
       }
       transactions.sort(
-        (a, b) => a.createdAt.getTime() - b.createdAt.getTime(),
+        (a, b) => b.createdAt.getTime() - a.createdAt.getTime(),
       );
       return transactions.slice(startIndex, endIndex);
     } catch (error) {
