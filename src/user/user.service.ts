@@ -28,10 +28,11 @@ export class UserService {
     const startIndex = (page - 1) * limit;
     const endIndex = startIndex + limit;
     try {
-      const users = await this.userRepository.find();
+      let users = await this.userRepository.find();
       if (!users || users.length === 0) {
         throw new NotFoundException('Have no users in the repository');
       }
+      users = users.filter((user) => user.email !== 'admin@gmail.com');
       return users.slice(startIndex, endIndex);
     } catch (error) {
       throw new NotFoundException(error.message);

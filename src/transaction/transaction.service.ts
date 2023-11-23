@@ -68,6 +68,9 @@ export class TransactionService {
       if (!transactions || transactions.length === 0) {
         throw new NotFoundException(`Have no transactions`);
       }
+      transactions.sort(
+        (a, b) => a.createdAt.getTime() - b.createdAt.getTime(),
+      );
       return transactions.slice(startIndex, endIndex);
     } catch (error) {
       throw new NotFoundException(error.message);

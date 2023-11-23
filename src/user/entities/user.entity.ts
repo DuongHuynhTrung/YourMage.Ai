@@ -21,12 +21,28 @@ export class User {
   _id: ObjectId;
 
   @ApiProperty({
+    description: 'No of User',
+    example: 1,
+    nullable: false,
+  })
+  @Column()
+  no: number;
+
+  @ApiProperty({
     description: 'UserName of User',
     example: 'DuongHuynh02',
     nullable: false,
   })
   @Column()
   userName: string;
+
+  @ApiProperty({
+    description: 'Phone Number of User',
+    example: '0838462852',
+    nullable: false,
+  })
+  @Column()
+  phoneNumber: string;
 
   @ApiProperty({
     description: 'Email of User',
