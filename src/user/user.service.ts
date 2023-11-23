@@ -52,6 +52,11 @@ export class UserService {
             return [];
           }
           users = users.filter((user) => user.email !== 'admin@gmail.com');
+          let noNumber = 1;
+          users.forEach((user) => {
+            user.no = noNumber;
+            noNumber++;
+          });
           return users.slice(startIndex, endIndex);
         } catch (error) {
           throw new NotFoundException(error.message);
@@ -68,6 +73,11 @@ export class UserService {
           if (!users || users.length === 0) {
             return [];
           }
+          let noNumber = 1;
+          users.forEach((user) => {
+            user.no = noNumber;
+            noNumber++;
+          });
           return users.slice(startIndex, endIndex);
         } catch (error) {
           throw new NotFoundException(error.message);
@@ -84,6 +94,11 @@ export class UserService {
           if (!users || users.length === 0) {
             return [];
           }
+          let noNumber = 1;
+          users.forEach((user) => {
+            user.no = noNumber;
+            noNumber++;
+          });
           return users.slice(startIndex, endIndex);
         } catch (error) {
           throw new NotFoundException(error.message);
@@ -100,6 +115,11 @@ export class UserService {
           if (!users || users.length === 0) {
             return [];
           }
+          let noNumber = 1;
+          users.forEach((user) => {
+            user.no = noNumber;
+            noNumber++;
+          });
           return users.slice(startIndex, endIndex);
         } catch (error) {
           throw new NotFoundException(error.message);
