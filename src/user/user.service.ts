@@ -23,31 +23,158 @@ export class UserService {
     private readonly socketGateway: SocketGateway, // Inject SocketGateway
   ) {}
 
-  async getUsers(page: number): Promise<User[]> {
+  async getUsers(page: number, level: string): Promise<User[]> {
     const limit = 10;
     const startIndex = (page - 1) * limit;
     const endIndex = startIndex + limit;
-    try {
-      let users = await this.userRepository.find();
-      if (!users || users.length === 0) {
-        throw new NotFoundException('Have no users in the repository');
+    switch (level) {
+      case 'All': {
+        try {
+          let users = await this.userRepository.find();
+          if (!users || users.length === 0) {
+            return [];
+          }
+          users = users.filter((user) => user.email !== 'admin@gmail.com');
+          return users.slice(startIndex, endIndex);
+        } catch (error) {
+          throw new NotFoundException(error.message);
+        }
+        break;
       }
-      users = users.filter((user) => user.email !== 'admin@gmail.com');
-      return users.slice(startIndex, endIndex);
-    } catch (error) {
-      throw new NotFoundException(error.message);
+      case LevelEnum.FREE: {
+        try {
+          let users = await this.userRepository.find({
+            where: {
+              level: LevelEnum.FREE,
+            },
+          });
+          if (!users || users.length === 0) {
+            return [];
+          }
+          users = users.filter((user) => user.email !== 'admin@gmail.com');
+          return users.slice(startIndex, endIndex);
+        } catch (error) {
+          throw new NotFoundException(error.message);
+        }
+        break;
+      }
+      case LevelEnum.APPRENTICE: {
+        try {
+          const users = await this.userRepository.find({
+            where: {
+              level: LevelEnum.APPRENTICE,
+            },
+          });
+          if (!users || users.length === 0) {
+            return [];
+          }
+          return users.slice(startIndex, endIndex);
+        } catch (error) {
+          throw new NotFoundException(error.message);
+        }
+        break;
+      }
+      case LevelEnum.ARTISAN: {
+        try {
+          const users = await this.userRepository.find({
+            where: {
+              level: LevelEnum.ARTISAN,
+            },
+          });
+          if (!users || users.length === 0) {
+            return [];
+          }
+          return users.slice(startIndex, endIndex);
+        } catch (error) {
+          throw new NotFoundException(error.message);
+        }
+        break;
+      }
+      case LevelEnum.MAESTRO: {
+        try {
+          const users = await this.userRepository.find({
+            where: {
+              level: LevelEnum.MAESTRO,
+            },
+          });
+          if (!users || users.length === 0) {
+            return [];
+          }
+          return users.slice(startIndex, endIndex);
+        } catch (error) {
+          throw new NotFoundException(error.message);
+        }
+        break;
+      }
     }
   }
 
-  async getTotalUser(): Promise<number> {
-    try {
-      const users = await this.userRepository.find();
-      if (!users || users.length === 0) {
-        throw new NotFoundException('Have no users in the repository');
+  async getTotalUser(level: string): Promise<number> {
+    switch (level) {
+      case 'All': {
+        try {
+          const users = await this.userRepository.find();
+          if (!users || users.length === 0) {
+            throw new NotFoundException('Have no users in the repository');
+          }
+          return users.length - 1;
+        } catch (error) {
+          throw new NotFoundException(error.message);
+        }
+        break;
       }
-      return users.length;
-    } catch (error) {
-      throw new NotFoundException(error.message);
+      case LevelEnum.FREE: {
+        try {
+          const users = await this.userRepository.find({
+            where: {
+              level: LevelEnum.FREE,
+            },
+          });
+          return users.length - 1;
+        } catch (error) {
+          throw new NotFoundException(error.message);
+        }
+        break;
+      }
+      case LevelEnum.APPRENTICE: {
+        try {
+          const users = await this.userRepository.find({
+            where: {
+              level: LevelEnum.APPRENTICE,
+            },
+          });
+          return users.length;
+        } catch (error) {
+          throw new NotFoundException(error.message);
+        }
+        break;
+      }
+      case LevelEnum.ARTISAN: {
+        try {
+          const users = await this.userRepository.find({
+            where: {
+              level: LevelEnum.ARTISAN,
+            },
+          });
+          return users.length;
+        } catch (error) {
+          throw new NotFoundException(error.message);
+        }
+        break;
+      }
+      case LevelEnum.MAESTRO: {
+        try {
+          const users = await this.userRepository.find({
+            where: {
+              level: LevelEnum.MAESTRO,
+            },
+          });
+          return users.length;
+        } catch (error) {
+          throw new NotFoundException(error.message);
+        }
+        break;
+      }
     }
   }
 

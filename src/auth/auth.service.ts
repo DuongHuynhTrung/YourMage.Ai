@@ -55,6 +55,8 @@ export class AuthService {
         const accessToken = this.jwtService.sign(payload);
         return { accessToken };
       } else {
+        const users = await this.userRepository.find();
+        const no = users.length;
         const user = this.userRepository.create({
           email: googlePayload.email,
           isOlder18: false,
@@ -62,6 +64,7 @@ export class AuthService {
           tokens: 150,
           status: true,
           role: RoleEnum.USER,
+          no: no,
         });
         if (!user) {
           throw new BadRequestException(
@@ -113,6 +116,9 @@ export class AuthService {
     if (!user) {
       throw new BadRequestException('Something went wrong when creating user');
     }
+    const users = await this.userRepository.find();
+    const no = users.length;
+    user.no = no;
     user.isOlder18 = false;
     user.level = LevelEnum.FREE;
     user.tokens = 150;
